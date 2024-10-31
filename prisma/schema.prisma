@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Cards {
+  id         Int         @id @default(autoincrement())
+  name       BigInt
+  user_id    Int
+  theme_id   Int
+  created_at DateTime    @db.Timestamptz(6)
+  updated_at DateTime    @db.Timestamptz(6)
+  Users      Users       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Cards_fk2")
+  Theme      Theme       @relation(fields: [theme_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Cards_fk3")
+  Favorites  Favorites[]
+  History    History[]
+  Questions  Questions[]
+}
+
+model Favorites {
+  id       Int    @id @default(autoincrement())
+  card_id  Int
+  comments String @db.VarChar(200)
+  Cards    Cards  @relation(fields: [card_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Favorites_fk1")
+}
+
+model History {
+  id         Int      @id @default(autoincrement())
+  card_id    Int
+  score      Int
+  date       BigInt
+  created_at DateTime @db.Timestamptz(6)
+  updated_at DateTime @db.Timestamptz(6)
+  Cards      Cards    @relation(fields: [card_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "History_fk1")
+}
+
+model Questions {
+  id         Int      @id @default(autoincrement())
+  card_id    Int
+  question   String   @db.VarChar(500)
+  answer     String   @db.VarChar(500)
+  created_at DateTime @db.Timestamptz(6)
+  updated_at DateTime @db.Timestamptz(6)
+  Cards      Cards    @relation(fields: [card_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Questions_fk1")
+}
+
+model Theme {
+  id            Int      @id @default(autoincrement())
+  theme_name    String   @db.VarChar(30)
+  subtheme_name String   @db.VarChar(30)
+  created_at    DateTime @db.Timestamptz(6)
+  updated_at    DateTime @db.Timestamptz(6)
+  Cards         Cards[]
+}
+
+model Users {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique @db.VarChar(40)
+  name          String   @db.VarChar(30)
+  hash_password String   @db.VarChar(50)
+  created_at    DateTime @db.Timestamptz(6)
+  updated_at    DateTime @db.Timestamptz(6)
+  ids           BigInt
+  id_confirmed  Boolean
+  Cards         Cards[]
+}
